@@ -9,7 +9,7 @@ pygame.display.set_caption("one_sprite")
 WHITE = (255, 255, 255)
 
 FPS = 60
-
+VEL = 5
 SPRITE_W, SPRITE_H = 40, 40
 
 
@@ -25,13 +25,20 @@ def rotate_sprite(sprite_name, angle, right=True):
     return pygame.transform.rotate(sprite_name, angle)
 
 
-def draw_window():
+def draw_window(arrow_loc):
     WIN.fill(WHITE)
-    WIN.blit(arrow, (400, 200))
+    WIN.blit(arrow, (arrow_loc.x, arrow_loc.y))
     pygame.display.update()
 
 
+def update_loc(arrow_loc, velocity=VEL):
+    arrow_loc.x += velocity
+    arrow_loc.y += velocity
+
+
 def main():
+    arrow_loc = pygame.Rect(400, 200, SPRITE_W, SPRITE_H)
+
     clock = pygame.time.Clock()
     run = True
     while run:
@@ -40,7 +47,9 @@ def main():
             if event.type == pygame.QUIT:
                 run = False
 
-        draw_window()
+        update_loc(arrow_loc)
+
+        draw_window(arrow_loc)
 
     pygame.quit()
 
