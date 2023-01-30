@@ -8,6 +8,8 @@ pygame.display.set_caption("one_sprite")
 
 WHITE = (255, 255, 255)
 
+OUTER_PADDING, INNER_PADDING_THICKNESS = 50, 5
+
 FPS = 60
 VEL = 5
 SPRITE_W, SPRITE_H = 40, 40
@@ -22,35 +24,33 @@ def create_arrow_sprite(w=SPRITE_W, h=SPRITE_H):
 def rotate_sprite(sprite_name, angle, right=True):
     if not right:
         angle *= -1
-
     return pygame.transform.rotate(sprite_name, angle)
 
 
-def determine_velocity(arrow_loc, arrow_prev_state, prev_x_velocity, prev_y_velocity, padding=50):
-    print("arrow_prev_state", arrow_prev_state, "   in_outer_padding(arrow_loc)", in_outer_padding(arrow_loc), "   in_inner_padding(arrow_loc)", in_inner_padding(arrow_loc))
+def determine_velocity(arrow_loc, prev_x_velocity=VEL, prev_y_velocity=VEL):
     new_x, new_y = prev_x_velocity, prev_y_velocity
-    if not arrow_prev_state and in_outer_padding(arrow_loc):
-        if arrow_loc <= padding or arrow_loc >= WIDTH - padding:
+    if not in_outer_padding(arrow_loc) and in_inner_padding(arrow_loc):
+        if arrow_loc.x <= OUTER_PADDING + INNER_PADDING_THICKNESS or \
+                arrow_loc.x >= WIDTH - (OUTER_PADDING + INNER_PADDING_THICKNESS):
             new_x *= -1
-        else:
+        if arrow_loc.y <= OUTER_PADDING + INNER_PADDING_THICKNESS or \
+                arrow_loc.y >= HEIGHT - (OUTER_PADDING + INNER_PADDING_THICKNESS):
             new_y *= -1
     return new_x, new_y
 
 
-def draw_window(arrow_loc, arrow_prev_state):
+def draw_window(arrow_loc, x_vel, y_vel):
     WIN.fill(WHITE)
     WIN.blit(arrow, (arrow_loc.x, arrow_loc.y))
 
-    """if not arrow_prev_state and not in_outer_padding(arrow_loc):
-        update_loc(arrow_loc, arrow_prev_state, -1, -1)
-    else:
-        update_loc(arrow_loc, arrow_prev_state)"""
-    update_loc(arrow_loc, arrow_prev_state)
+    update_loc(arrow_loc, x_vel, y_vel)
 
     pygame.display.update()
 
 
-def in_outer_padding(arrow_loc, padding=50):
+def in_outer_padding(arrow_loc, padding=OUTER_PADDING):
+    # Add functionality that takes into account the dimensions of the sprite
+    # HERE
     # check if in outer padding
     if arrow_loc.x <= padding or arrow_loc.x >= WIDTH - padding or \
             arrow_loc.y <= padding or arrow_loc.y >= HEIGHT - padding:
@@ -58,20 +58,11 @@ def in_outer_padding(arrow_loc, padding=50):
     return False
 
 
-def in_inner_padding(arrow_loc, padding=50, thickness=10):
+def in_inner_padding(arrow_loc, padding=OUTER_PADDING, thickness=INNER_PADDING_THICKNESS):
     return not in_outer_padding(arrow_loc) and in_outer_padding(arrow_loc, padding + thickness)
 
 
-def update_loc(arrow_loc, prev_state, x_vel=VEL, y_vel=VEL, threshold=10):
-    """# check if x flipping is needed
-    if arrow_loc.x == threshold or arrow_loc.x == WIDTH - threshold:
-        x_velocity *= -1
-    # check if y flipping is needed
-    if arrow_loc.y == threshold or arrow_loc.y == HEIGHT - threshold:
-        y_velocity *= -1"""
-
-    x_vel, y_vel = determine_velocity(arrow_loc, prev_state, x_vel, y_vel)
-
+def update_loc(arrow_loc, x_vel=VEL, y_vel=VEL):
     arrow_loc.x += x_vel
     arrow_loc.y += y_vel
 
@@ -79,10 +70,7 @@ def update_loc(arrow_loc, prev_state, x_vel=VEL, y_vel=VEL, threshold=10):
 def main():
     # define arrow start position
     arrow_loc = pygame.Rect(START_X, START_Y, SPRITE_W, SPRITE_H)
-
-    # define initial arrow state
-    arrow_prev_state = in_outer_padding(arrow_loc)
-
+    x_vel, y_vel = VEL, VEL
     clock = pygame.time.Clock()
     run = True
     while run:
@@ -91,12 +79,8 @@ def main():
             if event.type == pygame.QUIT:
                 run = False
 
-        draw_window(arrow_loc, arrow_prev_state)
-
-        # update previous arrow position
-        arrow_prev_state = in_outer_padding(arrow_loc)
-
-        input()
+        x_vel, y_vel = determine_velocity(arrow_loc, x_vel, y_vel)
+        draw_window(arrow_loc, x_vel, y_vel)
 
     pygame.quit()
 
