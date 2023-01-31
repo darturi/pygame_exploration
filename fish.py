@@ -24,7 +24,7 @@ class Fish:
         self.angle += angle
         self.sprite = pygame.transform.rotate(self.sprite, angle)
 
-    def update_loc(self): #, x_vel=VEL, y_vel=VEL):
+    def update_loc(self):
         x_vel, y_vel = self.determine_velocity()
         self.sprite_loc.x += x_vel
         self.sprite_loc.y += y_vel

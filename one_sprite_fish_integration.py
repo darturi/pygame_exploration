@@ -1,4 +1,3 @@
-import os.path
 import fish
 import pygame
 
