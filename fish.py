@@ -46,7 +46,3 @@ class Fish:
                     self.sprite_loc.y >= canvas_h - (padding + thickness):
                 self.prev_y_vel *= -1
         return self.prev_x_vel, self.prev_y_vel
-
-
-sprite = Fish()
-print(type(sprite.sprite_loc.x))
