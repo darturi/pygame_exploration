@@ -10,7 +10,7 @@ class Fish:
     SPRITE_H, SPRITE_W = 40, 40
 
     def __init__(self, sprite_w=SPRITE_W, sprite_h=SPRITE_H, start_x=START_X, start_y=START_Y, start_vel=VEL):
-        arrow_sprite = pygame.image.load(os.path.join('assets', 'arrow.png'))
+        arrow_sprite = pygame.image.load(os.path.join('../assets', 'arrow.png'))
 
         self.sprite = pygame.transform.scale(arrow_sprite, (sprite_w, sprite_h))
         self.angle = 0
@@ -18,6 +18,7 @@ class Fish:
         self.prev_x_vel = start_vel
         self.prev_y_vel = start_vel
 
+    # Rotating using the original top left corner of the image as the axis, we don't like this
     def rotate_sprite(self, angle, right=True):
         if not right:
             angle *= -1

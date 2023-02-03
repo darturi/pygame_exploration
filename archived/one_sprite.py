@@ -17,7 +17,7 @@ START_X, START_Y = 400, 200
 
 
 def create_arrow_sprite(w=SPRITE_W, h=SPRITE_H):
-    arrow_sprite = pygame.image.load(os.path.join('assets', 'arrow.png'))
+    arrow_sprite = pygame.image.load(os.path.join('../assets', 'arrow.png'))
     return pygame.transform.scale(arrow_sprite, (w, h))
 
 

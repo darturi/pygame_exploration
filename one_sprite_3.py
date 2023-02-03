@@ -1,4 +1,4 @@
-from archived import fish
+import fish2
 import pygame
 
 WIDTH, HEIGHT = 900, 500
@@ -14,13 +14,14 @@ def draw_window(sprite):
     WIN.blit(sprite.sprite, (sprite.sprite_loc.x, sprite.sprite_loc.y))
 
     sprite.update_loc()
+    # print(sprite.in_turn)
 
     pygame.display.update()
 
 
 def main():
-    sprite = fish.Fish()
-    sprite.rotate_sprite(90)
+    sprite = fish2.Fish()
+    sprite.rotate_sprite(-45)
 
     clock = pygame.time.Clock()
     run = True
@@ -30,11 +31,15 @@ def main():
             if event.type == pygame.QUIT:
                 run = False
 
+        """keys_pressed = pygame.key.get_pressed()
+        if keys_pressed[pygame.K_LEFT]:
+            sprite.rotate_sprite(10, False)
+        elif keys_pressed[pygame.K_RIGHT]:
+            sprite.rotate_sprite(10)"""
+
         draw_window(sprite)
 
-        print(sprite.sprite_loc.x, sprite.sprite_loc.y)
-        sprite.rotate_sprite(180)
-        input()
+        # input()
 
 
     pygame.quit()
