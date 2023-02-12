@@ -1,5 +1,5 @@
 import math
-
+import numpy as np
 import pygame
 import os
 
@@ -66,7 +66,7 @@ class Fish:
 
     def execute_turn(self, step=VEL, angle_step=1):
         if self.turn_counter < self.final_angle:
-            self.rotate_sprite(angle_step, self.turn_direction)
+            self.rotate_sprite(angle_step, self.turn_direction == "RIGHT")
             self.forward(step)
             self.turn_counter += angle_step
         else:
@@ -94,6 +94,15 @@ class Fish:
         # Perform rotation operation on sprite
         self.sprite = pygame.transform.rotate(self.sprite, angle)
 
+    # STRATEGY IS IN PLACE FIGURE OUT HOW TO DEAL WITH COORDINATE SYSTEM BEING NON-CARTESIAN
+    # THIS MAY BE ACCOMPLISHED BY THEN INVERTING OVER THE Y=self.sprite_loc.y TO ACCOUNT FOR Y
+    def define_tip(self, sprite_w=SPRITE_W, sprite_h=SPRITE_H):
+        theta = self.angle * (math.pi / 180)
+        x_up = self.sprite_loc.x + (math.cos(theta) * sprite_w) - (math.sin(theta) * (sprite_h / 2))
+        y_up = self.sprite_loc.y - (math.sin(theta) * sprite_w) - (math.cos(theta) * (sprite_h / 2))
+
+        return x_up, y_up
+
     def update_loc(self):
         """if not self.in_outer_padding() and self.in_inner_padding() and not self.in_turn:
             print("HERE")
@@ -104,6 +113,7 @@ class Fish:
             self.execute_turn()
         else:
             self.forward()"""
+
         self.forward()
 
     def in_outer_padding(self, padding=OUTER_PADDING, canvas_w=CANVAS_WIDTH, canvas_h=CANVAS_HEIGHT):
