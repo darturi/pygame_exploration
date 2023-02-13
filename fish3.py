@@ -23,10 +23,12 @@ class Fish:
         self.sprite.set_colorkey((0,0,255))
 
     # go forward based on angle (since start angle has been changed to 0 this will have to change)
-    """def forward(self, step=VEL):
-        theta_rad = self.angle * (math.pi / 180)
+    def forward(self, step=VEL, in_turn=False):
+        theta_rad = (self.angle - 90) * (math.pi / 180)
         self.sprite_loc.x += step * math.cos(theta_rad)
-        self.sprite_loc.y -= step * math.sin(theta_rad)"""
+        self.sprite_loc.y -= step * math.sin(theta_rad)
+        if not in_turn:
+            self.win.blit(self.sprite, (self.sprite_loc.x, self.sprite_loc.y))
 
     # Rotating using the original top left corner of the image as the axis, we don't like this
     def rotate_sprite(self, turn_angle, right=True):
@@ -58,8 +60,12 @@ class Fish:
         w_center, h_center = int(img_copy.get_width() / 2), int(img_copy.get_height() / 2)
         self.win.blit(img_copy, (mx - w_center, my - h_center))
 
+    def forward_and_turn(self):
+        self.forward(-10, in_turn=True)
+        self.rotate_sprite(10)
+
     def update_loc(self):
-        self.rotate_sprite(5)
+        self.forward_and_turn()
         # self.win.blit(self.sprite, (self.sprite_loc.x, self.sprite_loc.y))
 
         # self.forward()
