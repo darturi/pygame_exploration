@@ -1,4 +1,4 @@
-import fish2
+import fish3
 import pygame
 
 WIDTH, HEIGHT = 900, 500
@@ -20,7 +20,7 @@ def draw_window(sprite):
 
 
 def main():
-    sprite = fish2.Fish(WIN)
+    sprite = fish3.Fish(WIN)
     # sprite.find_turn_axis(0)
     print(sprite.sprite_loc.x, sprite.sprite_loc.y)
 
@@ -32,13 +32,7 @@ def main():
             if event.type == pygame.QUIT:
                 run = False
 
-        """keys_pressed = pygame.key.get_pressed()
-        if keys_pressed[pygame.K_LEFT]:
-            sprite.rotate_sprite(10, False)
-        elif keys_pressed[pygame.K_RIGHT]:
-            sprite.rotate_sprite(10)"""
-
-        input()
+        # input()
         print(sprite.sprite_loc.x, sprite.sprite_loc.y)
 
         draw_window(sprite)

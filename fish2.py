@@ -1,19 +1,19 @@
 import math
-import numpy as np
 import pygame
 import os
 
 
 class Fish:
     VEL = 2
-    OUTER_PADDING, INNER_PADDING_THICKNESS = 50, 5
+    OUTER_PADDING, INNER_PADDING_THICKNESS = 50, 2
     CANVAS_WIDTH, CANVAS_HEIGHT = 900, 500
     START_X, START_Y = 400, 200
     SPRITE_H, SPRITE_W = 40, 40
 
-    def __init__(self, sprite_w=SPRITE_W, sprite_h=SPRITE_H, start_x=START_X, start_y=START_Y, start_vel=VEL):
-        arrow_sprite = pygame.image.load(os.path.join('assets', 'arrow.png'))
+    def __init__(self, window, sprite_w=SPRITE_W, sprite_h=SPRITE_H, start_x=START_X, start_y=START_Y, start_vel=VEL):
+        arrow_sprite = pygame.image.load(os.path.join('assets', 'arrow.png')).convert()
 
+        self.win = window
         self.sprite = pygame.transform.scale(arrow_sprite, (sprite_w, sprite_h))
         self.angle = 90
         self.in_turn = False
@@ -23,6 +23,8 @@ class Fish:
         self.turn_counter = 1
         self.final_angle = 1
         self.turn_direction = "RIGHT"
+
+        self.sprite.set_colorkey((0,0,255))
 
     # go forward based on angle
     def forward(self, step=VEL):
@@ -92,10 +94,9 @@ class Fish:
         print("After", self.angle)
 
         # Perform rotation operation on sprite
-        self.sprite = pygame.transform.rotate(self.sprite, angle)
+        self.sprite = pygame.transform.rotate(self.sprite, self.angle - 90)
 
-    # STRATEGY IS IN PLACE FIGURE OUT HOW TO DEAL WITH COORDINATE SYSTEM BEING NON-CARTESIAN
-    # THIS MAY BE ACCOMPLISHED BY THEN INVERTING OVER THE Y=self.sprite_loc.y TO ACCOUNT FOR Y
+    # Gives coordinate of the tip of the sprite rather than the bottom left corner (from default)
     def define_tip(self, sprite_w=SPRITE_W, sprite_h=SPRITE_H):
         theta = self.angle * (math.pi / 180)
         x_up = self.sprite_loc.x + (math.cos(theta) * sprite_w) - (math.sin(theta) * (sprite_h / 2))
@@ -103,9 +104,79 @@ class Fish:
 
         return x_up, y_up
 
+    def find_turn_axis(self, turn_angle, sprite_w=SPRITE_W, sprite_h=SPRITE_H, right=True, step=VEL):
+        # define where the hilt is before the next rotation
+        theta = self.angle * (math.pi / 180)
+        prev_hilt_x = (sprite_w / 2) * math.cos(theta)
+        prev_hilt_y = (sprite_w / 2) * math.sin(theta)
+
+        # record turn distance
+        if right:
+            turn_distance = self.angle + turn_angle
+        else:
+            turn_distance = self.angle - turn_angle
+
+        # Actually turn
+        self.rotate_sprite(turn_angle, right)
+
+        # calculate where the hilt will be
+        theta_prime = (self.angle * (math.pi / 180))
+        post_hilt_x = (sprite_w / 2) * math.cos(theta_prime)
+        post_hilt_y = (sprite_w / 2) * math.sin(theta_prime)
+
+        # Calculate necessary move justification
+        x_justify = prev_hilt_x - post_hilt_x
+        y_justify = prev_hilt_y - post_hilt_y
+
+        print("Turn Info:")
+        print("prev_hilt_x, prev_hilt_y", prev_hilt_x, prev_hilt_y)
+        print("post_hilt_x, post_hilt_y", post_hilt_x, post_hilt_y)
+        print("x_justify, y_justify", x_justify, y_justify)
+
+        # implement justification
+        """# +x, -y if turn angle in Q1 or Q3
+        if (0 < turn_distance <= 90) or (270 < turn_distance <= 360):
+            self.sprite_loc.x += x_justify
+            self.sprite_loc.y -= y_justify
+        # +x, +y if turn angle in Q2 or Q3
+        else:
+            self.sprite_loc.x += x_justify
+            self.sprite_loc.y -= y_justify"""
+
+    def centered_rotate(self, angle, right=True):
+        print("Before", self.angle)
+        if not right:
+            angle *= -1
+
+        # naively update angle attribute
+        self.angle += angle
+
+        """# handle angle greater than or equal to 360 case
+        if self.angle > 359:
+            self.angle = self.angle % 360
+
+        # handle negative angle case
+        elif self.angle < 0:
+            self.angle = 360 + self.angle"""
+
+        print("After", self.angle)
+
+
+
+        # Create image copy to get current dimensions
+        img_copy = pygame.transform.rotate(self.sprite, self.angle - 90)
+        w_center, h_center = int(img_copy.get_width() / 2), int(img_copy.get_height() / 2)
+        self.win.blit(self.sprite, (self.sprite_loc.x - w_center, self.sprite_loc.y - h_center))
+
+
+    def get_sprite_center(self):
+        return
+
+
     def update_loc(self):
-        """if not self.in_outer_padding() and self.in_inner_padding() and not self.in_turn:
+        if not self.in_outer_padding() and self.in_inner_padding() and not self.in_turn:
             print("HERE")
+        """
             self.in_turn = True
             self.determine_turn_info()
 
@@ -113,14 +184,22 @@ class Fish:
             self.execute_turn()
         else:
             self.forward()"""
+        self.rotate_sprite(5)
+        self.win.blit(self.sprite, (self.sprite_loc.x, self.sprite_loc.y))
 
-        self.forward()
+        # self.forward()
 
-    def in_outer_padding(self, padding=OUTER_PADDING, canvas_w=CANVAS_WIDTH, canvas_h=CANVAS_HEIGHT):
-        return self.sprite_loc.x <= padding or self.sprite_loc.x >= canvas_w - padding \
-               or self.sprite_loc.y <= padding or self.sprite_loc.y >= canvas_h - padding
+    def in_outer_padding(self, padding=OUTER_PADDING, canvas_w=CANVAS_WIDTH, canvas_h=CANVAS_HEIGHT,
+                         sprite_w=SPRITE_W, sprite_h=SPRITE_H):
+        nose_x, nose_y = self.define_tip(sprite_w, sprite_h)
+        """return self.sprite_loc.x <= padding or self.sprite_loc.x >= canvas_w - padding \
+               or self.sprite_loc.y <= padding or self.sprite_loc.y >= canvas_h - padding"""
+        return nose_x <= padding or nose_x >= canvas_w - padding or \
+               nose_y <= padding or nose_y >= canvas_h - padding
 
-    def in_inner_padding(self, padding=OUTER_PADDING, thickness=INNER_PADDING_THICKNESS):
+    def in_inner_padding(self, padding=OUTER_PADDING, thickness=INNER_PADDING_THICKNESS,
+                         canvas_w=CANVAS_WIDTH, canvas_h=CANVAS_HEIGHT,
+                         sprite_w=SPRITE_W, sprite_h=SPRITE_H):
         return not self.in_outer_padding() and self.in_outer_padding(padding=padding + thickness)
 
     def determine_velocity(self, padding=OUTER_PADDING,
