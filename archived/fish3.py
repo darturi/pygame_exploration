@@ -11,7 +11,7 @@ class Fish:
     SPRITE_H, SPRITE_W = 40, 40
 
     def __init__(self, window, sprite_w=SPRITE_W, sprite_h=SPRITE_H, start_x=START_X, start_y=START_Y):
-        arrow_sprite = pygame.image.load(os.path.join('assets', 'arrow.png')).convert()
+        arrow_sprite = pygame.image.load(os.path.join('../assets', 'arrow.png')).convert()
 
         self.win = window
         self.sprite = pygame.transform.scale(arrow_sprite, (sprite_w, sprite_h))
@@ -23,12 +23,12 @@ class Fish:
         self.sprite.set_colorkey((0,0,255))
 
     # go forward based on angle (since start angle has been changed to 0 this will have to change)
-    def forward(self, step=VEL, in_turn=False):
-        theta_rad = (self.angle - 90) * (math.pi / 180)
-        self.sprite_loc.x += step * math.cos(theta_rad)
-        self.sprite_loc.y -= step * math.sin(theta_rad)
-        if not in_turn:
-            self.win.blit(self.sprite, (self.sprite_loc.x, self.sprite_loc.y))
+    #def forward(self, step=VEL, in_turn=False):
+    #    theta_rad = (self.angle - 90) * (math.pi / 180)
+    #    self.sprite_loc.x += step * math.cos(theta_rad)
+    #    self.sprite_loc.y -= step * math.sin(theta_rad)
+    #    if not in_turn:
+    #        self.win.blit(self.sprite, (self.sprite_loc.x, self.sprite_loc.y))
 
     # Rotating using the original top left corner of the image as the axis, we don't like this
     def rotate_sprite(self, turn_angle, right=True):
@@ -59,6 +59,10 @@ class Fish:
 
         w_center, h_center = int(img_copy.get_width() / 2), int(img_copy.get_height() / 2)
         # not sure if x should be - or +
+
+        # self.sprite = img_copy
+        # self.sprite_loc.x, self.sprite_loc.y = mx - w_center, my - h_center
+
         self.win.blit(img_copy, (mx - w_center, my - h_center))
 
     def get_future_center(self, step=VEL, angle_step=0):
@@ -75,7 +79,7 @@ class Fish:
         next_center_x, next_center_y = self.get_future_center(step=step, angle_step=angle_step)
         x_diff, y_diff = round(current_center_x - next_center_x), round(current_center_y - next_center_y)
 
-        print(current_center_x, current_center_y, "---", next_center_x, next_center_y, "---", x_diff, y_diff, "---", self.sprite_loc.x, self.sprite_loc.y)
+        # print(current_center_x, current_center_y, "---", next_center_x, next_center_y, "---", x_diff, y_diff, "---", self.sprite_loc.x, self.sprite_loc.y)
 
         self.sprite_loc.x += x_diff
         self.sprite_loc.y += y_diff
@@ -119,18 +123,18 @@ class Fish:
         self.rotate_sprite(2)
 
     def update_loc(self):
-        self.do_circle(100)
+        self.forward_to_next_center()
+        if not self.in_outer_padding() and self.in_inner_padding():
+            print("HERE")
         # self.win.blit(self.sprite, (self.sprite_loc.x, self.sprite_loc.y))
 
         # self.forward()
 
-    def in_outer_padding(self, padding=OUTER_PADDING, canvas_w=CANVAS_WIDTH, canvas_h=CANVAS_HEIGHT,
-                         sprite_w=SPRITE_W, sprite_h=SPRITE_H):
-        nose_x, nose_y = self.define_tip(sprite_w, sprite_h)
+    def in_outer_padding(self, padding=OUTER_PADDING, canvas_w=CANVAS_WIDTH, canvas_h=CANVAS_HEIGHT):
+        c_x, c_y = self.get_center()
         """return self.sprite_loc.x <= padding or self.sprite_loc.x >= canvas_w - padding \
                or self.sprite_loc.y <= padding or self.sprite_loc.y >= canvas_h - padding"""
-        return nose_x <= padding or nose_x >= canvas_w - padding or \
-               nose_y <= padding or nose_y >= canvas_h - padding
+        return c_x <= padding or c_x >= canvas_w - padding or c_y <= padding or c_y >= canvas_h - padding
 
     def in_inner_padding(self, padding=OUTER_PADDING, thickness=INNER_PADDING_THICKNESS,
                          canvas_w=CANVAS_WIDTH, canvas_h=CANVAS_HEIGHT,
