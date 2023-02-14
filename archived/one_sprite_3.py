@@ -1,4 +1,4 @@
-import fish2
+from archived import fish2
 import pygame
 
 WIDTH, HEIGHT = 900, 500

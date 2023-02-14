@@ -11,7 +11,7 @@ class Fish:
     SPRITE_H, SPRITE_W = 40, 40
 
     def __init__(self, window, sprite_w=SPRITE_W, sprite_h=SPRITE_H, start_x=START_X, start_y=START_Y, start_vel=VEL):
-        arrow_sprite = pygame.image.load(os.path.join('assets', 'arrow.png')).convert()
+        arrow_sprite = pygame.image.load(os.path.join('../assets', 'arrow.png')).convert()
 
         self.win = window
         self.sprite = pygame.transform.scale(arrow_sprite, (sprite_w, sprite_h))
