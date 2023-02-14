@@ -22,6 +22,9 @@ def draw_window(sprite):
 def main():
     sprite = fish3.Fish(WIN)
     # sprite.find_turn_axis(0)
+    sprite.get_future_center()
+    sprite.rotate_sprite(45)
+    sprite.get_future_center()
     print(sprite.sprite_loc.x, sprite.sprite_loc.y)
 
     clock = pygame.time.Clock()
@@ -33,8 +36,7 @@ def main():
                 run = False
 
         # input()
-        print(sprite.sprite_loc.x, sprite.sprite_loc.y)
-
+        # print(sprite.sprite_loc.x, sprite.sprite_loc.y)
         draw_window(sprite)
 
         # input()

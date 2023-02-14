@@ -58,14 +58,68 @@ class Fish:
         img_copy = pygame.transform.rotate(self.sprite, self.angle)
 
         w_center, h_center = int(img_copy.get_width() / 2), int(img_copy.get_height() / 2)
+        # not sure if x should be - or +
         self.win.blit(img_copy, (mx - w_center, my - h_center))
 
-    def forward_and_turn(self):
-        self.forward(-10, in_turn=True)
-        self.rotate_sprite(10)
+    def get_future_center(self, step=VEL, angle_step=0):
+        current_x, current_y = self.get_center()
+        theta_rad = (self.angle + angle_step - 90) * (math.pi / 180)
+        # print(current_x, ",", current_y, end=" ---> ")
+        current_x += step * math.cos(theta_rad)
+        current_y -= step * math.sin(theta_rad)
+        # print(current_x,  ",", current_y, end=" ---> \n")
+        return current_x, current_y
+
+    def forward_to_next_center(self, step=VEL, in_turn=False, angle_step=0):
+        current_center_x, current_center_y = self.get_center()
+        next_center_x, next_center_y = self.get_future_center(step=step, angle_step=angle_step)
+        x_diff, y_diff = round(current_center_x - next_center_x), round(current_center_y - next_center_y)
+
+        print(current_center_x, current_center_y, "---", next_center_x, next_center_y, "---", x_diff, y_diff, "---", self.sprite_loc.x, self.sprite_loc.y)
+
+        self.sprite_loc.x += x_diff
+        self.sprite_loc.y += y_diff
+
+        if not in_turn:
+            self.win.blit(self.sprite, (self.sprite_loc.x, self.sprite_loc.y))
+        """self.sprite_loc.x, self.sprite_loc.y = self.derive_axis_from_center(step=step)
+        print(self.sprite_loc.x, ",", self.sprite_loc.y)
+        if not in_turn:
+            self.win.blit(self.sprite, (self.sprite_loc.x, self.sprite_loc.y))
+
+    def derive_axis_from_center(self, step=VEL):
+        # center_x, center_y = self.get_future_center(step=step)
+        center_x, center_y = self.get_future_center(step=step)
+        theta_rad = (self.angle - 90) * (math.pi / 180)
+        center_x += step * math.cos(theta_rad)
+        center_y -= step * math.sin(theta_rad)
+        return center_x, center_y"""
+
+    def get_center(self, w=SPRITE_W, h=SPRITE_H):
+        """mx, my = self.sprite_loc.x, self.sprite_loc.y
+        w_center, h_center = int(self.sprite.get_width() / 2), int(self.sprite.get_height() / 2)
+        return mx + w_center, my - h_center"""
+        theta = self.angle * (math.pi / 180)
+
+        current_center_x = self.sprite_loc.x + (math.cos(theta) * (w / 2)) - (math.sin(theta) * (h / 2))
+        current_center_y = self.sprite_loc.y - (math.sin(theta) * (w / 2)) - (math.cos(theta) * (h / 2))
+
+        return current_center_x, current_center_y
+
+    """def forward_and_turn(self, w=SPRITE_W, h=SPRITE_H):
+        #self.get_future_center()
+        self.forward_to_next_center(60, in_turn=True)
+        self.rotate_sprite(6)
+        # input()"""
+
+    def do_circle(self, radius):
+        circumference = 2 * math.pi * radius
+        step = circumference / 180
+        self.forward_to_next_center(step=step, in_turn=True, angle_step=2)
+        self.rotate_sprite(2)
 
     def update_loc(self):
-        self.forward_and_turn()
+        self.do_circle(100)
         # self.win.blit(self.sprite, (self.sprite_loc.x, self.sprite_loc.y))
 
         # self.forward()
