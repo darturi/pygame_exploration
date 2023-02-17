@@ -2,9 +2,8 @@ import librosa
 import numpy as np
 import matplotlib.pyplot as plt
 
-
-def moving_average(x, w):
-    return np.convolve(x, np.ones(w), 'valid') / w
+def moving_average(arr, w):
+    return np.convolve(arr, np.ones(w), 'valid') / w
 
 
 def segmented_avg(arr, seg_len, length):
@@ -45,13 +44,37 @@ def get_negative_set(pos_set):
     return [-1 * i for i in pos_set]
 
 
-audio_path = "assets/violin.wav"
-x = get_sprite_path(audio_path)
+def scale_to_canvas(canvas_width, arr, sprite_width):
+    maximum = max(arr)
+    scalar = ((canvas_width // 2) - (sprite_width // 2)) // maximum
+    return [scalar * i for i in arr]
 
-plt.figure(figsize=(14, 5))
-plt.plot(x)
-plt.show()
 
-plt.figure(figsize=(14, 5))
-plt.plot(get_negative_set(x))
-plt.show()
+def scaled_for_pos(scaled, canvas_width):
+    return [(canvas_width // 2) - i for i in scaled]
+
+
+def create_scaled_neg(pos_scaled, canvas_width):
+    return [canvas_width - i for i in pos_scaled]
+
+
+def get_scaled_pos_neg(audio_path, canvas_width, sprite_width, conv_degree=10000, FPS=60):
+    raw_set = get_sprite_path(audio_path, conv_degree, FPS)
+    raw_scaled = scale_to_canvas(canvas_width, raw_set, sprite_width)
+    pos_scaled = scaled_for_pos(raw_scaled, canvas_width)
+    neg_scaled = create_scaled_neg(pos_scaled, canvas_width)
+    return pos_scaled, neg_scaled
+
+if __name__ == "__main__":
+    audio_path = "assets/violin.wav"
+    # x = get_sprite_path(audio_path)
+
+    x, y = get_scaled_pos_neg(audio_path, 400, 40)
+
+    plt.figure(figsize=(14, 5))
+    plt.plot(x)
+    plt.show()
+
+    plt.figure(figsize=(14, 5))
+    plt.plot(y)
+    plt.show()
